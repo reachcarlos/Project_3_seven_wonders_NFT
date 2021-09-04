@@ -5,6 +5,8 @@ from pathlib import Path
 from dotenv import load_dotenv
 import streamlit as st
 from PIL import Image
+import sys,json
+from urllib.request import urlopen
 
 from pinata import pin_file_to_ipfs, pin_json_to_ipfs, convert_data_to_json
 
@@ -123,6 +125,8 @@ st.write(f"This address owns {tokens} tokens")
 token_id = st.selectbox("Seven Wonders Tokens", list(range(tokens)))
 
 if st.button("Display"):
+    #token_uri=''
+    #string=''
 
     # Use the contract's `ownerOf` function to get the site token owner
     owner = contract.functions.ownerOf(token_id).call()
@@ -132,8 +136,16 @@ if st.button("Display"):
     # Use the contract's `tokenURI` function to get the site token's URI
     token_uri = contract.functions.tokenURI(token_id).call()
 
-    st.write(f"The tokenURI is {token_uri}")
-    st.image(token_uri)
+    #st.write(f"The tokenURI is {token_uri}")
+    #st.write(token_uri)
+
+# concatanate token_uri with https address
+    string = token_uri.replace("ipfs://", "https://gateway.pinata.cloud/ipfs/")
+# Your code where you can use urlopen
+    with urlopen(string) as url:
+        s=json.loads(url.read())
+        fname = (s['image'])
+        st.image(f"https://gateway.pinata.cloud/ipfs/{fname}")
 
 
 ################################################################################
